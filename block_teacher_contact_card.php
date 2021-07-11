@@ -9,6 +9,11 @@ class block_teacher_contact_card extends block_base {
         return true;
     }
 
+    // only allow users to add the block when in a course page.
+    public function applicable_formats() {
+        return array('course-view' => true);
+    }
+
     public function get_content() {
         global $USER, $CFG, $DB, $OUTPUT, $PAGE;
         if ($this->content !== null) {
@@ -32,7 +37,6 @@ class block_teacher_contact_card extends block_base {
         $label_message = get_string('label_message', 'block_teacher_contact_card');
         $msg_no_teacher = get_string('msg_no_teacher', 'block_teacher_contact_card');
         $msg_no_permission = get_string('msg_no_permission', 'block_teacher_contact_card');
-        $msg_not_course_page = get_string('msg_not_course_page', 'block_teacher_contact_card');
 
         // functions
         /**
@@ -68,12 +72,10 @@ class block_teacher_contact_card extends block_base {
             
             // if both phone AND mobile exist: 
             if ($person_phone && $person_mobile) {
-
                 // if the phone and mobile numbers are the same, show one.
                 if ($person_phone === $person_mobile) $person_numbers = $person_phone;
                 // if not, show both
                 $person_numbers = "{$person_phone}<br>{$person_mobile}";
-
             }
 
             // if NEITHER exists
@@ -227,9 +229,6 @@ class block_teacher_contact_card extends block_base {
             if (isguestuser()) $this->content->text = $msg_no_permission;
         }
 
-        // if the current page isn't a course page, show not a course page message.
-        if ($PAGE->pagelayout !== 'course') $this->content->text = $msg_not_course_page;
-        
         // if user isn't enrolled and isn't admin, show no permission message.
         if ($isEnrolled===false && $isAdmin===false) $this->content->text = $msg_no_permission;
 

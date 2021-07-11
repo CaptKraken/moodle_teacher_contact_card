@@ -19,4 +19,3 @@ $string['label_message'] = 'ផ្ញើសារទៅ';
 $string['msg_no_number'] = 'មិនមានលេខទំនាកទំនងក្នុងកំណត់ត្រាទេ។';
 $string['msg_no_teacher'] = 'មិនមានគ្រូសំរាប់​ Course នេះទេ។';
 $string['msg_no_permission'] = 'អ្នកមិនមានសិទ្ធមើលនូវបញ្ជីគ្រូទេ។';
-$string['msg_not_course_page'] = 'នេះមិនមានជាទំព័រមេរៀនទេ។ Block នេះដើរទៅបានតែពេលនៅលើទំព័រមេរៀនតែប៉ុន្នោះ។';

@@ -19,4 +19,3 @@ $string['label_message'] = 'Message';
 $string['msg_no_number'] = 'No number on record.';
 $string['msg_no_teacher'] = 'No teacher found for this course.';
 $string['msg_no_permission'] = 'You don\'t have permission to view the teacher list.';
-$string['msg_not_course_page'] = 'This is not a course page. This block should only be added to course pages.';
