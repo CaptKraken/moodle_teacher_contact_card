@@ -1,4 +1,28 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * This is the main class file for block_teacher_contact_card.
+ *
+ * @package    block_teacher_contact_card
+ * @category   block
+ * @copyright  2021 Song Kim
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class block_teacher_contact_card extends block_base
 {
     public function init()
@@ -11,7 +35,7 @@ class block_teacher_contact_card extends block_base
         return true;
     }
 
-    // only allow users to add the block when in a course page.
+    // Only allow users to add the block when in a course page.
     public function applicable_formats()
     {
         return array('course-view' => true);
@@ -19,189 +43,193 @@ class block_teacher_contact_card extends block_base
 
     public function get_content()
     {
-        global $USER, $CFG, $DB, $OUTPUT, $PAGE;
+        global $USER, $CFG, $DB, $OUTPUT;
         if ($this->content !== null) {
             return $this->content;
         }
-        // importing css style and js script
-        echo "<link rel='stylesheet' href='{$CFG->wwwroot}/blocks/teacher_contact_card/styles.css'>
-        <script src='{$CFG->wwwroot}/blocks/teacher_contact_card/scripts.js' defer></script>";
+        // Importing css style and js script
+        echo "<link rel='stylesheet' href='{$CFG->wwwroot}/blocks/teacher_contact_card/style/styles.css'>
+        <script src='{$CFG->wwwroot}/blocks/teacher_contact_card/script/scripts.js' defer></script>";
 
-        // card color in settings
+        // Card color in settings
         $color = get_config('block_teacher_contact_card', 'cardcolor');
         echo "<style>.ti__list--item {
         background-color: {$color};
         }</style>";
 
-        // get strings
-        $tag_teacher = get_string('tag_teacher', 'block_teacher_contact_card');
-        $tag_assistant = get_string('tag_assistant', 'block_teacher_contact_card');
-        $label_email = get_string('label_email', 'block_teacher_contact_card');
-        $label_numbers = get_string('label_numbers', 'block_teacher_contact_card');
-        $label_message = get_string('label_message', 'block_teacher_contact_card');
-        $msg_no_teacher = get_string('msg_no_teacher', 'block_teacher_contact_card');
-        $msg_no_permission = get_string('msg_no_permission', 'block_teacher_contact_card');
+        // Get strings
+        $tagteacher = get_string('tagteacher', 'block_teacher_contact_card');
+        $tagassistant = get_string('tagassistant', 'block_teacher_contact_card');
+        $labelemail = get_string('labelemail', 'block_teacher_contact_card');
+        $labelnumbers = get_string('labelnumbers', 'block_teacher_contact_card');
+        $labelmessage = get_string('labelmessage', 'block_teacher_contact_card');
+        $msgnoteacher = get_string('msgnoteacher', 'block_teacher_contact_card');
+        $msgnopermission = get_string('msgnopermission', 'block_teacher_contact_card');
 
-        // functions
+        // Functions
+
         /**
-         * list all the users of a specific role in a course
-         * @param string $role_shortname string of role shortname from mdl_role
-         * @param int $courseID id of the course
+         * list all the users of a specific role in a course.
+         * @param string $roleshortname string of role shortname from mdl_role
+         * @param int $courseid id of the course
          * @return array an array of users
          */
-        function get_list_of_users_by_role($role_shortname, $courseID)
+        function get_list_of_users_by_role($roleshortname, $courseid)
         {
             global $DB;
-            $role = $DB->get_record('role', array('shortname' => "{$role_shortname}"));
-            $context  = context_course::instance($courseID);
+            $role = $DB->get_record('role', array('shortname' => "{$roleshortname}"));
+            $context  = context_course::instance($courseid);
             return get_role_users($role->id, $context);
         };
 
         /**
          * returns person's numbers, handle no number, one number, etc.
          * 
-         * @param int|string|null $person_phone $person_object->phone1;
-         * @param int|string|null $person_mobile $person_object->phone2;
+         * @param int|string|null $personphone $personobject->phone1;
+         * @param int|string|null $personmobile $personobject->phone2;
          * @return string
          */
-        function validate_numbers($person_phone, $person_mobile)
+        function validate_numbers($personphone, $personmobile)
         {
-            $msg_no_number = get_string('msg_no_number', 'block_teacher_contact_card');
-            $msg_no_number = $msg_no_number ? $msg_no_number : 'No number on record.';
+            $msgnonumber = get_string('msgnonumber', 'block_teacher_contact_card');
+            $msgnonumber = $msgnonumber ? $msgnonumber : 'No number on record.';
 
-            // if EITHER phone OR mobile number exists, show.
-            if ($person_phone xor $person_mobile) {
-                $person_numbers = $person_phone ? $person_phone : $person_mobile;
+            // If EITHER phone OR mobile number exists, show.
+            if ($personphone xor $personmobile) {
+                $personnumbers = $personphone ? $personphone : $personmobile;
             }
 
-            // if both phone AND mobile exist: 
-            if ($person_phone && $person_mobile) {
-                // if the phone and mobile numbers are the same, show one.
-                if ($person_phone === $person_mobile) $person_numbers = $person_phone;
-                // if not, show both
-                $person_numbers = "{$person_phone}<br>{$person_mobile}";
+            // If BOTH phone AND mobile exist: 
+            if ($personphone && $personmobile) {
+                // If the phone and mobile numbers are the same, show one.
+                if ($personphone === $personmobile) $personnumbers = $personphone;
+                // If not, show both
+                $personnumbers = "{$personphone}<br>{$personmobile}";
             }
 
-            // if NEITHER exists
-            if (empty($person_phone) && empty($person_mobile)) $person_numbers = $msg_no_number;
+            // If NEITHER exists
+            if (empty($personphone) && empty($personmobile)) $personnumbers = $msgnonumber;
 
-            return $person_numbers;
+            return $personnumbers;
         }
 
-        //get course id
-        $courseID = $PAGE->course->id;
+        // Get course id
+        $courseid = $this->page->course->id;
 
-        // check if admin or enrolled
-        if ($PAGE->pagelayout === 'course') {
-            $current_user_id = $USER->id;
-            $isEnrolled = false;
-            $isAdmin = false;
+        // Check if admin or enrolled
+        if ($this->page->pagelayout === 'course') {
+            $currentuserid = $USER->id;
+            $isenrolled = false;
+            $isadmin = false;
 
-            // if there is a course id
-            if (!empty($courseID)) {
-                $context  = context_course::instance($courseID);
+            // If there is a course id
+            if (!empty($courseid)) {
+                $context  = context_course::instance($courseid);
                 $students = get_enrolled_users($context);
 
-                // if enrolled
+                // If enrolled
                 foreach ($students as $key => $value) {
-                    if ($value->id === $current_user_id) {
-                        $isEnrolled = true;
+                    if ($value->id === $currentuserid) {
+                        $isenrolled = true;
                         break;
-                    } else $isEnrolled = false;
+                    } else $isenrolled = false;
                 }
 
-                // if admin
+                // If admin
                 $admins = get_admins();
                 foreach ($admins as $key => $value) {
 
-                    if ($value->id === $current_user_id) {
-                        $isAdmin = true;
+                    if ($value->id === $currentuserid) {
+                        $isadmin = true;
                         break;
-                    } else $isAdmin = false;
+                    } else $isadmin = false;
                 }
             }
         }
 
-        // getting all teachers from the course
-        $teachers = get_list_of_users_by_role('editingteacher', $courseID);
-        // getting all teacher assistants from the course
-        $teacher_assistants  = get_list_of_users_by_role('teacher', $courseID);
+        // Getting all teachers from the course
+        $teachers = get_list_of_users_by_role('editingteacher', $courseid);
+        // Getting all teacher assistants from the course
+        $teacherassistants  = get_list_of_users_by_role('teacher', $courseid);
 
-        $showAssitants = get_config('block_teacher_contact_card', 'showassistants');
-        // if show assistants is enabled in settings:
-        if ($showAssitants) {
-            // show assistants
-            $all_teachers = $teachers + $teacher_assistants;
+        $showassitants = get_config('block_teacher_contact_card', 'showassistants');
+        // If show assistants is enabled in settings:
+        if ($showassitants) {
+            // Show assistants
+            $allteachers = $teachers + $teacherassistants;
         } else {
-            // show teachers only
-            $all_teachers = $teachers;
+            // Show teachers only
+            $allteachers = $teachers;
         }
 
-        $show_email = get_config('block_teacher_contact_card', 'showemail');
-        $show_numbers = get_config('block_teacher_contact_card', 'shownumbers');
-
+        $showemail = get_config('block_teacher_contact_card', 'showemail');
+        $shownumbers = get_config('block_teacher_contact_card', 'shownumbers');
 
         $html = '<section class="ti"><ul class="ti__list">';
         $i = 1;
 
-        foreach ($all_teachers as $id => $info) {
+        foreach ($allteachers as $id => $info) {
 
-            // getting user object
-            $person_object = core_user::get_user($id);
-            $person_fullname = "$person_object->firstname $person_object->lastname";
-            $person_email = $person_object->email;
-            $person_phone = $person_object->phone1;
-            $person_mobile = $person_object->phone2;
+            // Getting user object
+            $personobject = core_user::get_user($id);
+            $personfullname = "$personobject->firstname $personobject->lastname";
+            $personemail = $personobject->email;
+            $personphone = $personobject->phone1;
+            $personmobile = $personobject->phone2;
 
-            $person_numbers = validate_numbers($person_mobile, $person_phone);
+            $personnumbers = validate_numbers($personmobile, $personphone);
 
-            // displaying user picture
-            // my moodle discussion thread: https://moodle.org/mod/forum/discuss.php?d=424270
+            // Displaying user picture
+            // My moodle discussion thread: https://moodle.org/mod/forum/discuss.php?d=424270
             $conditions = array('size' => '240', 'link' => false, 'class' => '');
-            $person_profile_pic =  $OUTPUT->user_picture($person_object, $conditions);
+            $personprofilepic = $OUTPUT->user_picture($personobject, $conditions);
 
-            // roleid: 3 = editing teacher, 4 = non-editing teacher (db, mdl_role)
-            if ((int)$info->roleid === 3) $role = $tag_teacher;
-            if ((int)$info->roleid === 4) $role = $tag_assistant;
+            // Roleid: 3 = editing teacher, 4 = non-editing teacher (db, mdl_role)
+            if ((int)$info->roleid === 3) {
+                $role = $tagteacher;
+            }
+            if ((int)$info->roleid === 4) {
+                $role = $tagassistant;
+            }
 
-            // get message link
-            $message_url = $CFG->wwwroot . "/message/index.php?id={$id}";
+            // Get message link
+            $messageurl = $CFG->wwwroot . "/message/index.php?id={$id}";
 
-            // hidden class if not the first card.
+            // Hidden class if not the first card.
             $hidden = $i !== 1 ? 'hide' : '';
-            // different collapse icon because the first on isn't hidden
-            $colapse_icon = $i === 1 ? "▲" : "▼";
+            // Different collapse icon because the first on isn't hidden
+            $colapseicon = $i === 1 ? "▲" : "▼";
 
-            // show email if show email is enabled in settings
-            $email_section = $show_email ? "
+            // Show email if show email is enabled in settings
+            $emailsection = $showemail ? "
             <div>
-            <p>📧 {$label_email}</p>
-            <p>{$person_email}</p>
+            <p>📧 {$labelemail}</p>
+            <p>{$personemail}</p>
             </div>"
                 : "";
 
-            // show numbers if show numbers is enabled in settings
-            $numbers_section = $show_numbers ? "
+            // Show numbers if show numbers is enabled in settings
+            $numberssection = $shownumbers ? "
             <div>
-                <p>📞 {$label_numbers}</p>
-                <p>{$person_numbers}</p>
+                <p>📞 {$labelnumbers}</p>
+                <p>{$personnumbers}</p>
             </div>"
                 : "";
 
             $html .= "
                 <li class='ti__list--item'>
-                    <p class='ti__head'><span>{$person_fullname}</span> <span class='ti__collapse-icon'>{$colapse_icon}</span></p>
+                    <p class='ti__head'><span>{$personfullname}</span> <span class='ti__collapse-icon'>{$colapseicon}</span></p>
                     
                     <article class='ti__card {$hidden}'>  
                         <div class='ti__card__img'>
-                        {$person_profile_pic}
+                        {$personprofilepic}
                         </div>                  
                         <div class='card__content'>
                             <p class='ti__role'>{$role}</p>
-                            {$email_section}
-                            {$numbers_section}
+                            {$emailsection}
+                            {$numberssection}
                             <div>
-                            ✉️ <a class='msg-btn' href='{$message_url}'>{$label_message} {$person_fullname}</a>
+                            ✉️ <a class='msg-btn' href='{$messageurl}'>{$labelmessage} {$personfullname}</a>
                             </div>
                         </div>
                     </article>    
@@ -214,25 +242,25 @@ class block_teacher_contact_card extends block_base
 
         $html .= '</ul></section>';
 
-        $this->content         =  new stdClass;
-        $this->content->text   = $html;
+        $this->content =  new stdClass;
+        $this->content->text = $html;
         // $this->content->footer = 'Footer here...';
 
-        // if theres's no teacher, show no teacher message.
-        if (count($all_teachers) === 0) $this->content->text = $msg_no_teacher;
+        // If theres's no teacher, show no teacher message.
+        if (count($allteachers) === 0) $this->content->text = $msgnoteacher;
 
-        // if public teacher list enable:
-        $public_list = get_config('block_teacher_contact_card', 'publiclist');
-        if ($public_list) {
-            // show teacher list to the public
+        // If public teacher list enable:
+        $publiclist = get_config('block_teacher_contact_card', 'publiclist');
+        if ($publiclist) {
+            // Show teacher list to the public
             return;
         } else {
-            // if not, dont.
-            if (isguestuser()) $this->content->text = $msg_no_permission;
+            // If not, dont.
+            if (isguestuser()) $this->content->text = $msgnopermission;
         }
 
-        // if user isn't enrolled and isn't admin, show no permission message.
-        if ($isEnrolled === false && $isAdmin === false) $this->content->text = $msg_no_permission;
+        // If user isn't enrolled and isn't admin, show no permission message.
+        if ($isenrolled === false && $isadmin === false) $this->content->text = $msgnopermission;
 
         return $this->content;
     }

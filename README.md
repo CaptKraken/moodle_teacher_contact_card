@@ -2,7 +2,7 @@
 
 this block shows the course's teachers' and TAs' contact informations like their emails, phone numbers and in-system message link.
 
-## installation:
+to install:
 
 * clone this repo to /blocks
 
