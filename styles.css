@@ -104,13 +104,24 @@
 
 @media only screen and (max-width: 1199px) and (min-width: 540px) {
   .ti__card {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+  .card__content {
+    margin-top: 0;
+  }
+  .msg-btn {
+    margin-bottom: 0;
   }
 
   .ti__card__img {
     max-width: 240px;
-    margin: 1rem;
+    align-self: center;
+    justify-self: end;
+    margin-top: 0;
+    margin: 1rem 0;
   }
 }

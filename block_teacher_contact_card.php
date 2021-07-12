@@ -1,6 +1,8 @@
 <?php
-class block_teacher_contact_card extends block_base {
-    public function init() {
+class block_teacher_contact_card extends block_base
+{
+    public function init()
+    {
         $this->title = get_string('teacher_contact_card', 'block_teacher_contact_card');
     }
 
@@ -10,14 +12,16 @@ class block_teacher_contact_card extends block_base {
     }
 
     // only allow users to add the block when in a course page.
-    public function applicable_formats() {
+    public function applicable_formats()
+    {
         return array('course-view' => true);
     }
 
-    public function get_content() {
+    public function get_content()
+    {
         global $USER, $CFG, $DB, $OUTPUT, $PAGE;
         if ($this->content !== null) {
-          return $this->content;
+            return $this->content;
         }
         // importing css style and js script
         echo "<link rel='stylesheet' href='{$CFG->wwwroot}/blocks/teacher_contact_card/styles.css'>
@@ -69,7 +73,7 @@ class block_teacher_contact_card extends block_base {
             if ($person_phone xor $person_mobile) {
                 $person_numbers = $person_phone ? $person_phone : $person_mobile;
             }
-            
+
             // if both phone AND mobile exist: 
             if ($person_phone && $person_mobile) {
                 // if the phone and mobile numbers are the same, show one.
@@ -80,7 +84,7 @@ class block_teacher_contact_card extends block_base {
 
             // if NEITHER exists
             if (empty($person_phone) && empty($person_mobile)) $person_numbers = $msg_no_number;
-                
+
             return $person_numbers;
         }
 
@@ -88,34 +92,32 @@ class block_teacher_contact_card extends block_base {
         $courseID = $PAGE->course->id;
 
         // check if admin or enrolled
-        if ($PAGE->pagelayout === 'course'){
+        if ($PAGE->pagelayout === 'course') {
             $current_user_id = $USER->id;
             $isEnrolled = false;
             $isAdmin = false;
-            
+
             // if there is a course id
             if (!empty($courseID)) {
                 $context  = context_course::instance($courseID);
                 $students = get_enrolled_users($context);
-                
+
                 // if enrolled
                 foreach ($students as $key => $value) {
                     if ($value->id === $current_user_id) {
-                        $isEnrolled = true; 
+                        $isEnrolled = true;
                         break;
-                    }
-                    else $isEnrolled = false;
-                }    
-                
+                    } else $isEnrolled = false;
+                }
+
                 // if admin
                 $admins = get_admins();
                 foreach ($admins as $key => $value) {
-                    
+
                     if ($value->id === $current_user_id) {
                         $isAdmin = true;
                         break;
-                    }
-                    else $isAdmin = false;
+                    } else $isAdmin = false;
                 }
             }
         }
@@ -143,7 +145,7 @@ class block_teacher_contact_card extends block_base {
         $i = 1;
 
         foreach ($all_teachers as $id => $info) {
-            
+
             // getting user object
             $person_object = core_user::get_user($id);
             $person_fullname = "$person_object->firstname $person_object->lastname";
@@ -176,8 +178,8 @@ class block_teacher_contact_card extends block_base {
             <p>📧 {$label_email}</p>
             <p>{$person_email}</p>
             </div>"
-            : "";
-            
+                : "";
+
             // show numbers if show numbers is enabled in settings
             $numbers_section = $show_numbers ? "
             <div>
@@ -218,7 +220,7 @@ class block_teacher_contact_card extends block_base {
 
         // if theres's no teacher, show no teacher message.
         if (count($all_teachers) === 0) $this->content->text = $msg_no_teacher;
-        
+
         // if public teacher list enable:
         $public_list = get_config('block_teacher_contact_card', 'publiclist');
         if ($public_list) {
@@ -230,7 +232,7 @@ class block_teacher_contact_card extends block_base {
         }
 
         // if user isn't enrolled and isn't admin, show no permission message.
-        if ($isEnrolled===false && $isAdmin===false) $this->content->text = $msg_no_permission;
+        if ($isEnrolled === false && $isAdmin === false) $this->content->text = $msg_no_permission;
 
         return $this->content;
     }
