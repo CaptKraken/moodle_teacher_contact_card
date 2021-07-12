@@ -1,6 +1,13 @@
 <?php
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configcheckbox('block_teacher_contact_card/showassistants', get_string('setting_showassistants', 'block_teacher_contact_card'), '', true, ));
+    $settings->add(
+        new admin_setting_heading(
+            'headerconfig',
+            'General Settings',
+            ''
+        )
+    );
+    $settings->add(new admin_setting_configcheckbox('block_teacher_contact_card/showassistants', get_string('setting_showassistants', 'block_teacher_contact_card'), '', true,));
 
     $settings->add(new admin_setting_configcheckbox('block_teacher_contact_card/publiclist', get_string('setting_publiclist', 'block_teacher_contact_card'), get_string('setting_publiclistdesc', 'block_teacher_contact_card'), false));
 
