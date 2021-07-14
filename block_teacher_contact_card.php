@@ -43,19 +43,25 @@ class block_teacher_contact_card extends block_base
 
     public function get_content()
     {
-        global $USER, $CFG, $DB, $OUTPUT;
+        global $USER, $CFG, $OUTPUT;
         if ($this->content !== null) {
             return $this->content;
         }
-        // Importing css style and js script
-        echo "<link rel='stylesheet' href='{$CFG->wwwroot}/blocks/teacher_contact_card/style/styles.css'>
-        <script src='{$CFG->wwwroot}/blocks/teacher_contact_card/script/scripts.js' defer></script>";
 
         // Card color in settings
+        /**
+         * @var hex-code hex code from cardcolor in settings
+         */
         $color = get_config('block_teacher_contact_card', 'cardcolor');
-        echo "<style>.ti__list--item {
-        background-color: {$color};
-        }</style>";
+
+        // Resources links
+        $csslink = new moodle_url('/blocks/teacher_contact_card/style/styles.css');
+        $jslink = new moodle_url('/blocks/teacher_contact_card/script/scripts.js');
+
+        // Importing css style and js script
+        $CFG->additionalhtmlhead .= "<link rel='stylesheet' href='{$csslink}'>
+                                     <script src='{$jslink}' defer></script>
+                                     <style>.ti__list--item {background-color: {$color}; }</style>";
 
         // Get strings
         $tagteacher = get_string('tagteacher', 'block_teacher_contact_card');
@@ -84,7 +90,7 @@ class block_teacher_contact_card extends block_base
 
         /**
          * returns person's numbers, handle no number, one number, etc.
-         * 
+         *
          * @param int|string|null $personphone $personobject->phone1;
          * @param int|string|null $personmobile $personobject->phone2;
          * @return string
@@ -99,7 +105,7 @@ class block_teacher_contact_card extends block_base
                 $personnumbers = $personphone ? $personphone : $personmobile;
             }
 
-            // If BOTH phone AND mobile exist: 
+            // If BOTH phone AND mobile exist:
             if ($personphone && $personmobile) {
                 // If the phone and mobile numbers are the same, show one.
                 if ($personphone === $personmobile) $personnumbers = $personphone;
@@ -193,7 +199,7 @@ class block_teacher_contact_card extends block_base
             }
 
             // Get message link
-            $messageurl = $CFG->wwwroot . "/message/index.php?id={$id}";
+            $messageurl = new moodle_url("/message/index.php?id={$id}");
 
             // Hidden class if not the first card.
             $hidden = $i !== 1 ? 'hide' : '';
@@ -216,14 +222,15 @@ class block_teacher_contact_card extends block_base
             </div>"
                 : "";
 
+            // TODO: should implement mustache template?
             $html .= "
                 <li class='ti__list--item'>
                     <p class='ti__head'><span>{$personfullname}</span> <span class='ti__collapse-icon'>{$colapseicon}</span></p>
-                    
-                    <article class='ti__card {$hidden}'>  
+
+                    <article class='ti__card {$hidden}'>
                         <div class='ti__card__img'>
                         {$personprofilepic}
-                        </div>                  
+                        </div>
                         <div class='card__content'>
                             <p class='ti__role'>{$role}</p>
                             {$emailsection}
@@ -232,7 +239,7 @@ class block_teacher_contact_card extends block_base
                             ✉️ <a class='msg-btn' href='{$messageurl}'>{$labelmessage} {$personfullname}</a>
                             </div>
                         </div>
-                    </article>    
+                    </article>
 
                 </li>
                 ";
